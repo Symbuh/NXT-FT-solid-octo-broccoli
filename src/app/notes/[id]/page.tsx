@@ -1,3 +1,5 @@
+import styles from '../Notes.module.css';
+
 async function getNote(noteID: string) {
   /*
     Because this a 'dynamic route', it won't automatically cache every req

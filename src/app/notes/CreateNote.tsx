@@ -3,8 +3,8 @@
 // server but render it client side instead.
 
 import { useState } from 'react';
-
 import { useRouter } from 'next/navigation';
+import PocketBase from 'pocketbase';
 
 export default function CreateNote() {
   const [title, setTitle] = useState('');
@@ -13,23 +13,37 @@ export default function CreateNote() {
   const router = useRouter();
 
   const create = async () => {
-    await fetch('http://http://127.0.0.1:8090/api/collections/notes/records', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        title,
-        content,
-      }),
-    });
+    // let response = await fetch(
+    //   'http://127.0.0.1:8090/api/collections/notes/records',
+    //   {
+    //     method: 'POST',
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //     },
+    //     body: JSON.stringify({
+    //       title,
+    //       content,
+    //     }),
+    //   }
+    // );
+
+    // console.log(response);
+    // // Calling refresh allows us to requery database after every update.
+    const pb = new PocketBase('http://127.0.0.1:8090');
+
+    const data = {
+      title: title,
+      content: content,
+    };
+
+    const record = await pb.collection('notes').create(data);
+    console.log(record);
+
+    setContent('');
+    setTitle('');
+
+    router.refresh();
   };
-
-  setContent('');
-  setTitle('');
-
-  // Calling refresh allows us to requery database after every update.
-  router.refresh();
 
   return (
     <form onSubmit={create}>
@@ -38,12 +52,12 @@ export default function CreateNote() {
         type='text'
         placeholder='Title'
         value={title}
-        onChange={(e: any) => setTitle(e.target.value)}
+        onChange={(e) => setTitle(e.target.value)}
       />
       <textarea
         placeholder='Content'
         value={content}
-        onChange={(e: any) => setContent(e.target.value)}
+        onChange={(e) => setContent(e.target.value)}
       />
       <button type='submit'>Create Note</button>
     </form>

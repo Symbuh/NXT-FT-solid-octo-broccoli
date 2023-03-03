@@ -1,5 +1,6 @@
 // Next components are server components by default and we can
 // do direct data fetching on them using Async await.
+import styles from './Notes.module.css';
 import CreateNote from './CreateNote';
 import Link from 'next/link';
 import PocketBase from 'pocketbase';
@@ -22,8 +23,11 @@ async function getNotes() {
 
   // Here we use the PocketBase SDK to fetch our data instead of fetch.
   const db = new PocketBase('http://127.0.0.1:8090');
-  const data = await db.records.getList('notes');
-  return data?.items as any[];
+  const data = await db.collection('notes').getFullList({
+    sort: '-created',
+  });
+
+  return data as any[];
 }
 
 export default async function NotesPage() {
